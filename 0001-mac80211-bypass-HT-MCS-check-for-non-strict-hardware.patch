@@ -1,0 +1,56 @@
+From: Zaid Ahmad <109442753+zaidahmad16@users.noreply.github.com>
+Date: Sat, 26 Apr 2026
+Subject: [PATCH] mac80211: bypass HT basic MCS check for non-STRICT hardware
+
+Some APs (e.g. Comcast/Xfinity XB10, Rogers XB10) advertise a bogus HT
+Operation basic MCS set that requires optional unequal-modulation MCS
+indices (33-76) that most 2x2 cards cannot satisfy. This causes
+ieee80211_verify_sta_ht_mcs_support() to return false, which causes
+mac80211 to fall back to legacy 54 Mbps instead of connecting at proper
+HT/VHT/HE speeds.
+
+The VHT path already skips this check for non-STRICT hardware for the
+same reason. Apply the same bypass here so that only explicitly strict
+drivers enforce the basic MCS set. Non-strict hardware (including
+Intel AX200/iwlmvm) will now ignore the bogus advertised MCS set and
+negotiate the actual rate based on real capabilities.
+
+Tested on Ubuntu 6.17 kernel with Intel AX200 against a Rogers XB10
+gateway: link speed went from 54 Mbps (legacy) to 864 Mbps (HE 80 MHz
+2x2) after applying this patch.
+
+Signed-off-by: Zaid Ahmad <109442753+zaidahmad16@users.noreply.github.com>
+---
+ net/mac80211/mlme.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
+index abda6f91a..e6ae785fb 100644
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -363,15 +363,15 @@ ieee80211_verify_sta_ht_mcs_support(struct ieee80211_sub_if_data *sdata,
+ 	ieee80211_apply_htcap_overrides(sdata, &sta_ht_cap);
+
+ 	/*
+-	 * P802.11REVme/D7.0 - 6.5.4.2.4
+-	 * ...
+-	 * If the MLME of an HT STA receives an MLME-JOIN.request primitive
+-	 * with the SelectedBSS parameter containing a Basic HT-MCS Set field
+-	 * in the HT Operation parameter that contains any unsupported MCSs,
+-	 * the MLME response in the resulting MLME-JOIN.confirm primitive shall
+-	 * contain a ResultCode parameter that is not set to the value SUCCESS.
+-	 * ...
++	 * Some APs (e.g. Comcast/Xfinity XB10) advertise a bogus HT Operation
++	 * basic MCS set that requires optional unequal-modulation MCS indices
++	 * (33-76) that most 2x2 cards cannot satisfy, causing a spurious HT
++	 * downgrade to legacy 54 Mbps.  The VHT path already skips this check
++	 * for non-STRICT hardware for the same reason; apply the same bypass
++	 * here so that only explicitly strict drivers enforce the basic MCS set.
+ 	 */
++	if (!ieee80211_hw_check(&sdata->local->hw, STRICT))
++		return true;
+
+ 	/* Simply check that all basic rates are in the STA RX mask */
+ 	for (i = 0; i < IEEE80211_HT_MCS_MASK_LEN; i++) {
+--
+2.43.0
