@@ -1,5 +1,6 @@
-# mac80211-htfix
 
+# mac80211-htfix
+(PLEASE NOTE THAT YOU HAVE TO DISABLE SECURE BOOT FOR THE PATCH TO WORK)
 A DKMS patch that fixes WiFi speeds dropping to **54 Mbps** on Linux when
 connected to certain ISP-provided routers — even though your hardware is
 capable of much faster speeds.
