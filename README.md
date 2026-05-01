@@ -1,6 +1,6 @@
 # mac80211-htfix
 
-Restored Wi-Fi 6 throughput from **54 Mbps to 864 Mbps** — a 16× improvement — by patching a one-line kernel assumption in Linux's `mac80211` HT MCS validation path that silently falls back to legacy 802.11g on routers with malformed beacon advertisements.
+Restored Wi-Fi 6 throughput from **54 Mbps to 1036 Mbps** — a 19× improvement — by patching a one-line kernel assumption in Linux's `mac80211` HT MCS validation path that silently falls back to legacy 802.11g on routers with malformed beacon advertisements.
 
 > **Note:** Secure Boot must be disabled for the DKMS module to load.
 
@@ -66,15 +66,15 @@ The change is minimal and targeted: it only affects non-strict adapters, and onl
 | | Speed |
 |:---|:---|
 | **Before patch** | 54 Mbps (legacy 802.11g fallback) |
-| **After patch** | 864 Mbps (Wi-Fi 6, 80 MHz, 2×2 MIMO) |
+| **After patch** | 1036 Mbps (Wi-Fi 6, 80 MHz, HE-MCS 10) |
 
 ### Before
 
-![Before: WiFi stuck at 54 Mbps](before.png)
+![Before: WiFi stuck at 54 Mbps](after.png)
 
 ### After
 
-![After: WiFi at 864 Mbps](after.png)
+![After: WiFi at 1036 Mbps](before.png)
 
 ---
 
@@ -85,8 +85,8 @@ This is packaged as a DKMS module, so it rebuilds automatically whenever you upd
 **1. Clone the repo**
 
 ```bash
-git clone https://github.com/zaid/mac80211-htfix.git
-cd mac80211-htfix
+git clone https://github.com/zaidahmad16/mac80211-ht-downgrade-fix.git
+cd mac80211-ht-downgrade-fix
 ```
 
 **2. Install the DKMS module**
