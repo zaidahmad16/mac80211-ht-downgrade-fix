@@ -70,11 +70,11 @@ The change is minimal and targeted: it only affects non-strict adapters, and onl
 
 ### Before
 
-![Before: WiFi stuck at 54 Mbps](after.png)
+![Before: WiFi stuck at 54 Mbps](before.png)
 
 ### After
 
-![After: WiFi at 1036 Mbps](before.png)
+![After: WiFi at 1036 Mbps](after.png)
 
 ---
 
